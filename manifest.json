@@ -3,7 +3,7 @@
     "name": "hyde",
     "version": "1.0",
     "permissions": [
-      "tabs"
+      "declarativeContent"
     ],
     "content_scripts" : [
       {
