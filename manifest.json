@@ -1,0 +1,15 @@
+{
+    "manifest_version": 2,
+    "name": "hyde",
+    "version": "1.0",
+    "permissions": [
+      "tabs"
+    ],
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+    },
+    "page_action": {
+      "default_title": "display page URL"
+    }
+}
