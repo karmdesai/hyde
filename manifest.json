@@ -5,11 +5,20 @@
     "permissions": [
       "tabs"
     ],
+    "content_scripts" : [
+      {
+        "matches" : [
+          "http://*.youtube.com/*", "https://*.youtube.com/*"
+        ],
+        "js" : ["app.js"]
+      }
+    ],
     "background": {
       "scripts": ["background.js"],
       "persistent": false
     },
     "page_action": {
-      "default_title": "display page URL"
+      "default_title": "display page URL",
+      "default_popup": "popup.html"
     }
 }
