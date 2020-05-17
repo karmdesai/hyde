@@ -1,24 +1,22 @@
 {
-    "manifest_version": 2,
-    "name": "hyde",
-    "version": "1.0",
-    "permissions": [
-      "declarativeContent"
-    ],
-    "content_scripts" : [
-      {
-        "matches" : [
-          "http://*.youtube.com/*", "https://*.youtube.com/*"
-        ],
-        "js" : ["app.js"]
-      }
-    ],
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": false
-    },
-    "page_action": {
-      "default_title": "display page URL",
-      "default_popup": "popup.html"
+  "manifest_version": 2,
+  "name": "hyde",
+  "version": "1.0",
+  "permissions": [
+    "activeTab"
+  ],
+  "background": {
+    "scripts": [
+      "jquery-3.5.1.min.js", 
+      "background.js"],
+    "persistent": false
+  },
+  "commands": {
+    "hide": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+H"
+      },
+      "description": "hide/show the YouTube video player controls"
     }
+  }
 }
