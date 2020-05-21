@@ -2,10 +2,13 @@
   "manifest_version": 2,
   "name": "hyde — hide the YouTube video player controls",
   "version": "1.0",
-  "description": "turn the YouTube video player controls off/on",
-  "permissions": [
-    "activeTab"
-  ],
+  "description": "Hide or show the YouTube video player controls at will.",
+  "icons": { 
+    "16": "img/icon16.png",
+    "32": "img/icon32.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
   "background": {
     "scripts": ["src/background.js"],
     "persistent": false
@@ -23,5 +26,8 @@
       "matches": ["http://*.youtube.com/watch?v=*", "https://*.youtube.com/watch?v=*"],
       "js": ["src/hide.js", "src/show.js"]
     }
+  ],
+  "permissions": [
+    "activeTab"
   ]
 }
