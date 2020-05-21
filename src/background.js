@@ -16,7 +16,7 @@ chrome.commands.onCommand.addListener(function(command) {
         if (controlsHidden === false) {
           // run the 'hide.js' script.
           chrome.tabs.executeScript({
-            file: 'hide.js'
+            file: 'src/hide.js'
           });
 
           // change controls to hidden
@@ -27,7 +27,7 @@ chrome.commands.onCommand.addListener(function(command) {
         else {
           // run the 'show.js' script.
           chrome.tabs.executeScript({
-            file: 'show.js'
+            file: 'src/show.js'
           });
 
           // change controls to not hidden
