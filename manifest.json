@@ -7,7 +7,8 @@
   ],
   "background": {
     "scripts": [
-      "jquery-3.5.1.min.js", 
+      "hide.js", 
+      "show.js",
       "background.js"],
     "persistent": false
   },

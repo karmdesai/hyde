@@ -14,19 +14,24 @@ chrome.commands.onCommand.addListener(function(command) {
       if (onYT === true) {
         // and if the controls are not already hidden...
         if (controlsHidden === false) {
-          // run the 'app.js' script.
+          // run the 'hide.js' script.
           chrome.tabs.executeScript({
-            file: 'app.js'
+            file: 'hide.js'
           });
 
           // change controls to hidden
           controlsHidden = true;
         }
 
+        // if the controls are already hidden...
         else {
-          // show the controls again
-          /* either re-work and use jQuery for .hide() and .show()
-          but if it doesn't work just add the code everyime */
+          // run the 'show.js' script.
+          chrome.tabs.executeScript({
+            file: 'show.js'
+          });
+
+          // change controls to not hidden
+          controlsHidden = false;
         }
       }
     });
