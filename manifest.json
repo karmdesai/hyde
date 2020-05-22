@@ -16,7 +16,7 @@
   "commands": {
     "hide": {
       "suggested_key": {
-        "default": "Ctrl+M"
+        "default": "Ctrl+Shift+H"
       },
       "description": "hide/show controls"
     }
