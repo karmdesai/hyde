@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "hyde — hide the YouTube video player controls",
   "version": "1.0",
-  "description": "Hide or show the YouTube video player controls at will.",
+  "description": "Press Ctrl+M to hide or show the YouTube video player controls.",
   "icons": { 
     "16": "img/icon16.png",
     "32": "img/icon32.png",
