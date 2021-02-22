@@ -8,7 +8,7 @@ chrome.commands.onCommand.addListener(function(command) {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
       var tabUrl = tabs[0].url;
       // and establish whether or not they are on YouTube.
-      var onYT = tabUrl.includes("youtube.com/watch?v");
+      var onYT = tabUrl.includes("youtube.com/watch?");
 
       // if the user is watching a YouTube video...
       if (onYT === true) {
