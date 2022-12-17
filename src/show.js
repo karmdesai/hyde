@@ -5,3 +5,6 @@ document.getElementsByClassName('ytp-gradient-top')[0].style.visibility = 'visib
 document.getElementsByClassName('ytp-gradient-bottom')[0].style.visibility = 'visible';
 document.getElementsByClassName('ytp-progress-bar')[0].style.visibility = 'visible';
 document.getElementsByClassName('ytp-progress-bar-container')[0].style.visibility = 'visible';
+document.getElementsByClassName('ytp-chrome-bottom')[0].style.opacity = 1;
+document.getElementsByClassName('ytp-gradient-bottom')[0].style.opacity = 1;
+document.getElementsByClassName('ytp-gradient-bottom')[0].style.display = 'block';
