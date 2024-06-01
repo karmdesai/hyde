@@ -1,5 +1,5 @@
 // establish whether the controls are hidden or not
-var controlsHidden = false;
+let controlsHidden = false;
 
 chrome.commands.onCommand.addListener(function(command) {
   // if the user invokes the "hide" command...
@@ -15,8 +15,10 @@ chrome.commands.onCommand.addListener(function(command) {
         // and if the controls are not already hidden...
         if (controlsHidden === false) {
           // run the 'hide.js' script.
-          chrome.tabs.executeScript({
-            file: 'src/hide.js'
+          console.log('hyde - hiding the controls');
+          chrome.scripting.executeScript({
+            target: {tabId: tabs[0].id},
+            files: ['src/hide.js']
           });
 
           // change controls to hidden
@@ -26,8 +28,10 @@ chrome.commands.onCommand.addListener(function(command) {
         // if the controls are already hidden...
         else {
           // run the 'show.js' script.
-          chrome.tabs.executeScript({
-            file: 'src/show.js'
+          console.log('hyde - showing the controls');
+          chrome.scripting.executeScript({
+            target: {tabId: tabs[0].id},
+            files: ['src/show.js']
           });
 
           // change controls to not hidden
