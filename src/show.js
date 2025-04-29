@@ -5,3 +5,6 @@ document.getElementsByClassName('ytp-gradient-top')[0].style.visibility = 'visib
 document.getElementsByClassName('ytp-gradient-bottom')[0].style.visibility = 'visible';
 document.getElementsByClassName('ytp-progress-bar')[0].style.visibility = 'visible';
 document.getElementsByClassName('ytp-progress-bar-container')[0].style.visibility = 'visible';
+document.getElementsByClassName('ytp-fullscreen-quick-actions')[0].style.visibility = 'visible';
+document.getElementsByClassName('ytp-fullscreen-metadata')[0].style.visibility = 'visible';
+
