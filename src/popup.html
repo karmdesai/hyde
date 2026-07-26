@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="../img/icon48.png" alt="" class="logo" />
+      <div class="brand">
+        <div class="name">hyde</div>
+        <div class="tag">hide YouTube player controls</div>
+      </div>
+    </header>
+
+    <section class="card" id="toggleCard">
+      <div class="row">
+        <div>
+          <div class="row-title">Hide controls</div>
+          <div class="row-sub" id="statusText">off</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card muted" id="notYtCard" hidden>
+      <div class="row-title">Not on a YouTube page</div>
+      <div class="row-sub">Open a YouTube video, then try again.</div>
+    </section>
+
+    <section class="shortcut">
+      <div class="label">Shortcut</div>
+      <div class="kbd" id="shortcutText">Ctrl+M</div>
+    </section>
+
+    <button class="link" id="changeShortcut">Change shortcut</button>
+
+    <footer>
+      <a href="https://github.com/karmdesai/hyde" target="_blank" rel="noopener">github</a>
+      <span>·</span>
+      <span id="version"></span>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
