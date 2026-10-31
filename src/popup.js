@@ -1,5 +1,18 @@
 const YT_HOST_RE = /(^|\.)youtube(-nocookie)?\.com$/i;
 
+function isYouTubeVideoUrl(url) {
+  if (!url || typeof url !== "string") return false;
+  if (url.includes("youtube.com/watch?")) return true;
+  try {
+    const u = new URL(url);
+    if (!YT_HOST_RE.test(u.hostname)) return false;
+    if (u.pathname === "/watch" || u.pathname.startsWith("/watch/")) return true;
+    return /^\/(live|shorts|embed|clip)\//.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
 const $toggle = document.getElementById("toggle");
 const $statusText = document.getElementById("statusText");
 const $toggleCard = document.getElementById("toggleCard");
@@ -7,15 +20,6 @@ const $notYtCard = document.getElementById("notYtCard");
 const $shortcutText = document.getElementById("shortcutText");
 const $changeShortcut = document.getElementById("changeShortcut");
 const $version = document.getElementById("version");
-
-function isYouTubeUrl(url) {
-  if (!url) return false;
-  try {
-    return YT_HOST_RE.test(new URL(url).hostname);
-  } catch {
-    return false;
-  }
-}
 
 function detectShortcutsUrl() {
   const ua = navigator.userAgent;
@@ -43,13 +47,34 @@ async function loadShortcut() {
     if (s) {
       $shortcutText.textContent = s;
       $shortcutText.classList.remove("unset");
+      $changeShortcut.textContent = "Change shortcut";
     } else {
-      $shortcutText.textContent = "not set";
+      $shortcutText.textContent = "none";
       $shortcutText.classList.add("unset");
+      $changeShortcut.textContent = "Set shortcut";
     }
   } catch {
-    $shortcutText.textContent = "Ctrl+M";
+    $shortcutText.textContent = "none";
   }
+}
+
+async function sendToTab(tabId, msg) {
+  try {
+    return await chrome.tabs.sendMessage(tabId, msg, { frameId: 0 });
+  } catch {
+    await chrome.scripting.executeScript({
+      target: { tabId, frameIds: [0] },
+      files: ["src/content.js"],
+    });
+    return await chrome.tabs.sendMessage(tabId, msg, { frameId: 0 });
+  }
+}
+
+function showReloadNote() {
+  $notYtCard.hidden = false;
+  $notYtCard.querySelector(".row-title").textContent = "Reload this tab";
+  $notYtCard.querySelector(".row-sub").textContent =
+    "This video was open before hyde updated. Reload it to apply.";
 }
 
 async function init() {
@@ -57,45 +82,45 @@ async function init() {
 
   loadShortcut();
 
+  const { hidden = false } = await chrome.storage.local.get({ hidden: false });
+  applyState(hidden);
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local" || !changes.hidden) return;
+    applyState(!!changes.hidden.newValue);
+  });
+
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const onVideo = !!(tab && isYouTubeVideoUrl(tab.url));
 
-  if (!tab || !isYouTubeUrl(tab.url)) {
-    $toggleCard.hidden = true;
-    $notYtCard.hidden = false;
-    return;
+  if (onVideo) {
+    try {
+      await sendToTab(tab.id, { type: "hyde:ping" });
+    } catch {
+      showReloadNote();
+    }
   }
-
-  let state = { hidden: false };
-  try {
-    state = (await chrome.tabs.sendMessage(tab.id, { type: "hyde:get" })) || state;
-  } catch {
-    // Content script not present — page loaded before install. Ask user to refresh.
-    $toggleCard.hidden = true;
-    $notYtCard.hidden = false;
-    $notYtCard.querySelector(".row-title").textContent = "Refresh this tab";
-    $notYtCard.querySelector(".row-sub").textContent =
-      "hyde was installed after this page loaded. Reload the tab and try again.";
-    return;
-  }
-
-  applyState(state.hidden);
 
   $toggle.addEventListener("change", async () => {
+    const next = $toggle.checked;
     try {
-      const res = await chrome.tabs.sendMessage(tab.id, {
-        type: "hyde:set",
-        hidden: $toggle.checked,
-      });
-      applyState(res.hidden);
+      await chrome.storage.local.set({ hidden: next });
     } catch {
-      applyState(!$toggle.checked);
+      applyState(!next);
+      return;
+    }
+    if (!onVideo) return;
+    try {
+      await sendToTab(tab.id, { type: "hyde:ping" });
+    } catch {
+      showReloadNote();
     }
   });
 }
 
 function applyState(hidden) {
   $toggle.checked = !!hidden;
-  $statusText.textContent = hidden ? "on" : "off";
+  $statusText.textContent = hidden ? "on · all tabs" : "off · all tabs";
 }
 
 $changeShortcut.addEventListener("click", async () => {
@@ -107,8 +132,11 @@ $changeShortcut.addEventListener("click", async () => {
     // Copy to clipboard as a fallback.
     try {
       await navigator.clipboard.writeText(url);
+      const label = $shortcutText.classList.contains("unset")
+        ? "Set shortcut"
+        : "Change shortcut";
       $changeShortcut.textContent = "Copied " + url;
-      setTimeout(() => ($changeShortcut.textContent = "Change shortcut"), 1800);
+      setTimeout(() => ($changeShortcut.textContent = label), 1800);
     } catch {}
   }
 });

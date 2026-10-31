@@ -1,4 +1,9 @@
 (() => {
+  // executeScript can inject this file into a tab that was open before install
+  // or update. Bail if the content script is already running in this frame.
+  if (globalThis.__hyde) return;
+  globalThis.__hyde = true;
+
   const STYLE_ID = "hyde-style-tag";
 
   // Selectors chosen based on years of YouTube UI churn + user reviews:
@@ -103,8 +108,6 @@
   `;
 
   let hidden = false;
-  let lastToggleAt = 0;
-  const TOGGLE_DEBOUNCE_MS = 300;
 
   function apply() {
     if (document.getElementById(STYLE_ID)) return;
@@ -125,31 +128,16 @@
     else remove();
   }
 
-  // Debounced toggle used by BOTH the keydown listener and the background
-  // "hyde:toggle" message. Prevents a double-flip when a user has bound
-  // Ctrl+M via chrome://extensions/shortcuts AND our keydown handler both fire.
-  function toggle() {
-    const now = Date.now();
-    if (now - lastToggleAt < TOGGLE_DEBOUNCE_MS) return;
-    lastToggleAt = now;
-    setHidden(!hidden);
-  }
+  // One flag for the whole browser. Every watch tab reads it on load and
+  // follows storage.onChanged, so a toggle in one tab hits all of them.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local" || !changes.hidden) return;
+    setHidden(!!changes.hidden.newValue);
+  });
 
-  // Direct keydown fallback: works even when Chrome's suggested_key is unset
-  // (Brave/Edge/Vivaldi tab-mute conflicts, dev reloads, prior user overrides).
-  // Uses capture: true so we run before page listeners.
-  document.addEventListener(
-    "keydown",
-    (e) => {
-      if (e.repeat) return;
-      if (!e.ctrlKey && !e.metaKey) return;
-      if (e.shiftKey || e.altKey) return;
-      const k = (e.key || "").toLowerCase();
-      if (k !== "m") return;
-      toggle();
-    },
-    true
-  );
+  chrome.storage.local.get({ hidden: false }, (data) => {
+    setHidden(!!data.hidden);
+  });
 
   // Ensure the style survives SPA rebuilds: YouTube sometimes wipes head
   // during navigation. Re-attach if it goes missing while hidden === true.
@@ -169,19 +157,19 @@
 
   chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (!msg || typeof msg.type !== "string") return;
-    if (msg.type === "hyde:get") {
-      sendResponse({ hidden });
-      return;
+    if (msg.type === "hyde:get" || msg.type === "hyde:ping") {
+      chrome.storage.local.get({ hidden: false }, (data) => {
+        setHidden(!!data.hidden);
+        sendResponse({ hidden: !!data.hidden });
+      });
+      return true;
     }
-    if (msg.type === "hyde:toggle") {
-      toggle();
-      sendResponse({ hidden });
-      return;
-    }
-    if (msg.type === "hyde:set") {
-      setHidden(msg.hidden);
-      sendResponse({ hidden });
-      return;
+    if (msg.type === "hyde:toggle" || msg.type === "hyde:set") {
+      const next = msg.type === "hyde:set" ? !!msg.hidden : !hidden;
+      chrome.storage.local.set({ hidden: next }, () => {
+        sendResponse({ hidden: next });
+      });
+      return true;
     }
   });
 })();
